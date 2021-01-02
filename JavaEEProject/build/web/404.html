@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<!--
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+-->
+<html>
+    <head>
+        <title>TODO supply a title</title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css"/>
+        <style>body{padding:20px;}
+        #countDown{font-weight: bold;}
+        </style>
+    </head>
+    <body>
+        <div>Page not found.</div>
+        <div>Redirect in <span id="countDown"></div>
+        <div><a href="index.jsp">Home</a></div>
+        <script>
+            let element = $('countDown');
+            function $(id) {
+                return document.getElementById(id);
+            }            
+            let seconds = 10;
+            function countdownWithRedirect(page) {
+                seconds = seconds - 1;
+                if (seconds < 0) {
+                    // Set the page to redirect
+                    window.location = page;
+                } else {
+                    // Update the dom
+                    element.innerHTML = seconds;
+                    // Count down from 10
+                    window.setTimeout("countdownWithRedirect('" + page + "')", 1000);
+                }
+            }
+            countdownWithRedirect('index.jsp');
+        </script>
+    </body>
+</html>

@@ -1,0 +1,30 @@
+
+USE javaeeproject;
+DELIMITER $$
+CREATE PROCEDURE getTeamsForEmployee(IN eID INT(11))
+BEGIN
+	SELECT EmployeeID
+	FROM employeesinteams
+	WHERE EmployeeID = eID;
+END $$
+DELIMITER ;
+
+DELIMITER $$
+CREATE PROCEDURE addEmployeeTeam(IN eID INT(11), tID INT(11))
+BEGIN
+	INSERT INTO employeesinteams
+		(EmployeeID, TeamID)
+    VALUES 
+		(eID, tID);
+END $$
+DELIMITER ;
+
+
+
+DELIMITER $$
+CREATE PROCEDURE removeEmployeesFromTeam(IN tID INT(11))
+BEGIN
+	DELETE FROM employeesinteams
+	WHERE TeamId = tID;
+END $$
+DELIMITER ;

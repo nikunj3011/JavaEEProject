@@ -1,0 +1,492 @@
+CREATE DATABASE javaeeproject;
+USE	javaeeproject;
+ CREATE TABLE clients (
+	id int AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(50) NOT NULL,
+    description VARCHAR(255) NULL,
+    creationDate date NOT NULL,
+    isDeleted boolean NOT NULL
+);
+
+INSERT INTO clients
+		(name, description, creationDate, isDeleted)
+VALUES ("client1", "description1", "2020-11-20", false),
+		("client2", "description2", "2020-11-20", false);   
+		
+		
+USE javaeeproject;
+
+CREATE TABLE employees (
+	id int AUTO_INCREMENT PRIMARY KEY,
+    firstName VARCHAR(50) NOT NULL,
+    lastName VARCHAR(50) NOT NULL,
+    sin char(9) NOT NULL UNIQUE,
+    hourlyPayRate double NOT NULL,
+    creationDate date NOT NULL,
+	lastUpdateDate date,
+    isDeleted BOOLEAN DEFAULT FALSE
+);
+
+INSERT INTO employees
+	(firstName, LastName, sin, hourlyPayRate, creationDate,lastUpdateDate)
+VALUES 
+("John", "Smith", "123123123", 15.5, "2020-11-12", "2020-11-12"),
+("Ann", "Smith", "123123124", 15.5, "2020-11-12", "2020-11-12");
+
+SELECT * FROM employees;
+
+
+
+
+USE javaeeproject;
+
+CREATE TABLE tasks (
+	id int AUTO_INCREMENT PRIMARY KEY,
+    taskname VARCHAR(50) NOT NULL,
+    description VARCHAR(255) NULL,
+	duration VARCHAR(50) NULL,
+    creationDate date NOT NULL,
+	lastUpdateDate date,
+	isDeleted boolean default false
+);
+
+
+INSERT INTO tasks
+	(taskname, description, duration, creationDate,lastUpdateDate)
+VALUES 
+("Complete task 1", "completing the given task 1", "60", "2020-11-16","2020-11-16"),
+("Complete task 2", "completing the given task 2", "35", "2020-11-16","2020-11-16");
+
+
+SELECT * FROM tasks;
+
+
+USE javaeeproject;
+
+CREATE TABLE teams (
+	id int AUTO_INCREMENT PRIMARY KEY,
+    teamName VARCHAR(50) NOT NULL,
+    isCurrentlyOnCall boolean default false,
+    creationDate date NOT NULL,
+	isDeleted boolean default false
+);
+
+INSERT INTO teams
+	(teamName, isCurrentlyOnCall, creationDate)
+VALUES 
+("Alpha", false, "2020-11-16"),
+("Beta", false , "2020-11-16");
+
+SELECT * FROM teams;
+
+
+USE javaeeproject;
+
+CREATE TABLE jobs (
+	id INT(11) AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(50) NOT NULL,
+    description VARCHAR(255) NULL,
+	startTime DATETIME NOT NULL,
+    duration INT(11) NOT NULL,
+    clientID INT(11),
+    teamID INT(11),
+    cost DECIMAL(10, 2) NOT NULL,
+    isOnSite boolean NOT NULL,
+    isEmergencyCall boolean NOT NULL,
+	isDeleted boolean default false,
+    FOREIGN KEY (clientID) REFERENCES clients(id),
+    FOREIGN KEY (teamID) REFERENCES teams(id)
+);
+
+INSERT INTO jobs
+	(name, description, startTime, duration, clientID, teamID, cost, isOnSite, isEmergencyCall, isDeleted)
+VALUES 
+	("Red Hat, Rack Mount, Switch, Cabling", "Red Hat Linux: 120min; Rack Mount Server: 30min; Cisco Switch: 60min; Cat5e Cabling: 60 min", "2020-03-03 10:00:00", 150,
+		1, 1, 320.00, true, false, false);
+
+SELECT * FROM jobs;
+
+
+
+USE javaeeproject;
+
+CREATE TABLE EmployeeSkills (
+	EmployeeID INT NOT NULL,
+    TaskID INT NOT NULL,
+    PRIMARY KEY (EmployeeID, TaskID),
+    FOREIGN KEY (EmployeeID) REFERENCES employees(id),
+    FOREIGN KEY (TaskID) REFERENCES tasks(id)
+);
+
+INSERT INTO EmployeeSkills
+	(EmployeeID, TaskID)
+VALUES
+	(1, 2),
+    (2, 1),
+    (2, 2);
+
+
+
+
+USE javaeeproject;
+
+CREATE TABLE EmployeesInTeams (
+	EmployeeID INT NOT NULL,
+    TeamID INT NOT NULL,
+    PRIMARY KEY (EmployeeID, TeamID),
+    FOREIGN KEY (EmployeeID) REFERENCES employees(id),
+    FOREIGN KEY (TeamID) REFERENCES teams(id)
+);
+
+INSERT INTO EmployeesInTeams
+	(EmployeeID, TeamID)
+VALUES
+	(1, 1),
+    (2, 1),
+    (1, 2),
+    (2, 2);
+
+
+
+
+USE javaeeproject;
+
+DELIMITER $$
+
+CREATE PROCEDURE createClient (IN n VARCHAR(50), d VARCHAR(255), crDate date)
+BEGIN
+	INSERT INTO clients
+    (name, description, creationDate, isDeleted)
+    VALUES (n, d, crDate, false);
+END $$
+
+DELIMITER ;
+
+
+DELIMITER $$
+
+CREATE PROCEDURE getClients ()
+BEGIN
+	SELECT *
+    FROM clients
+    WHERE isDeleted = FALSE;
+END $$
+
+DELIMITER ;
+
+
+DELIMITER $$
+
+CREATE PROCEDURE getClient (IN clientID INT(11))
+BEGIN
+	SELECT *
+    FROM clients
+    WHERE id = clientID;
+END $$
+
+DELIMITER ;
+
+
+DELIMITER $$
+
+CREATE PROCEDURE updateClient (IN idToUpdate INT, n VARCHAR(50), d VARCHAR(255), crDate date)
+BEGIN
+	UPDATE clients
+    SET name = n,
+		description = d,
+        creationDate = crDate,
+        isDeleted = false
+	WHERE id = idToUpdate;
+END $$
+
+DELIMITER ;
+
+DELIMITER $$
+CREATE PROCEDURE deleteClient (IN clientId INT(11))
+BEGIN
+	UPDATE clients
+    SET isDeleted = true
+	WHERE id = clientId;
+END $$
+DELIMITER ;
+
+
+
+USE javaeeproject;
+
+DELIMITER $$
+CREATE PROCEDURE createEmployee 
+(IN firstName VARCHAR(50), lastName VARCHAR(50), sin CHAR(9), hourlyPayRate double, crDate date)
+BEGIN
+	INSERT INTO employees
+		(firstName, LastName, sin, hourlyPayRate, creationDate, lastUpdateDate)
+    VALUES 
+		(firstName, lastName, sin, hourlyPayRate, crDate, crDate);
+END $$
+DELIMITER ;
+
+DELIMITER $$
+CREATE PROCEDURE updateEmployee 
+(IN employeeID INT(11), firstName VARCHAR(50), lastName VARCHAR(50), sin CHAR(9), hourlyPayRate double, crDate date, updateDate date)
+BEGIN
+	UPDATE employees 
+		SET 
+			firstName = firstName,
+            lastName = lastName,
+            sin = sin,
+            hourlyPayRate = hourlyPayRate,
+            creationDate = crDate,
+            lastUpdateDate = updateDate
+	WHERE
+		id = employeeID;
+END $$
+DELIMITER ;
+
+DELIMITER $$
+CREATE PROCEDURE getEmployees ()
+BEGIN
+	SELECT  id, firstName, LastName, sin, hourlyPayRate, creationDate, lastUpdateDate
+    FROM Employees
+    WHERE isDeleted = FALSE;
+END $$
+DELIMITER ;
+
+DELIMITER $$
+CREATE PROCEDURE getEmployee (IN employeeID INT(11))
+BEGIN
+	SELECT (id, firstName, LastName, sin, hourlyPayRate, creationDate, lastUpdateDate, isDeleted)
+    FROM Employees
+    WHERE id = employeeID;
+END $$
+DELIMITER ;
+
+DELIMITER $$
+CREATE PROCEDURE deleteEmployee (IN employeeID INT(11))
+BEGIN
+	UPDATE employees 
+		SET 
+			isDeleted = TRUE
+	WHERE
+		id = employeeID;
+END $$
+DELIMITER ;
+
+DELIMITER $$
+CREATE PROCEDURE getTeamsForEmployee (IN employeeID INT(11))
+BEGIN
+	SELECT id, teamname, iscurrentlyOnCall, creationDate
+    FROM teams
+    INNER JOIN employeesInTeams ON (teams.id = employeesInTeams.teamID) 
+    WHERE (employeesInTeams.employeeID = employeeID) 
+		AND NOT isDeleted;
+END $$
+DELIMITER ;
+
+DELIMITER $$
+CREATE PROCEDURE getTasksForEmployee (IN employeeID INT(11))
+BEGIN
+	SELECT id, taskname, description, duration, creationDate
+    FROM tasks
+    INNER JOIN employeeskills ON (tasks.id = employeeskills.taskid) 
+    WHERE (employeeskills.employeeID = employeeID) 
+		AND NOT isDeleted;
+END $$
+DELIMITER ;
+
+
+
+USE javaeeproject;
+
+DELIMITER $$
+CREATE PROCEDURE createTask
+(IN taskname VARCHAR(50), description VARCHAR(255), duration VARCHAR(50), creationDate date)
+BEGIN
+	INSERT INTO tasks
+		(taskname, description, duration, creationDate, lastUpdateDate)
+    VALUES 
+		(taskname, description, duration, creationDate, creationDate);
+END $$
+DELIMITER ;
+
+DELIMITER $$
+CREATE PROCEDURE updateTask
+(IN taskID INT(11), taskname VARCHAR(50), description VARCHAR(255), duration VARCHAR(50), creationDate date, updateDate date)
+BEGIN
+	UPDATE tasks 
+		SET 
+			taskname = taskname,
+            description = description,
+            duration = duration,
+            creationDate = creationDate,
+            lastUpdateDate = updateDate
+	WHERE
+		id = taskID;
+END $$
+DELIMITER ;
+
+DELIMITER $$
+CREATE PROCEDURE getTasks ()
+BEGIN
+	SELECT  id, taskname, description, duration, creationDate,lastUpdateDate
+    FROM Tasks 
+	WHERE isDeleted = FALSE;
+END $$
+DELIMITER ;
+
+DELIMITER $$
+CREATE PROCEDURE getTask (IN TaskID INT(11))
+BEGIN
+	SELECT (id, taskname, description, duration, creationDate,lastUpdateDate, isDeleted)
+    FROM Tasks
+    WHERE id = TaskID;
+END $$
+DELIMITER ;
+
+DELIMITER $$
+CREATE PROCEDURE deleteTask (IN taskID INT(11))
+BEGIN
+	UPDATE tasks 
+		SET 
+			isDeleted = TRUE
+	WHERE
+		id = taskID;
+END $$
+DELIMITER ;
+
+
+
+
+USE javaeeproject;
+
+DELIMITER $$
+
+CREATE PROCEDURE createJob (IN name VARCHAR(50),
+								description VARCHAR(255),
+                                startTime DATETIME,
+                                duration INT(11),
+                                clientID INT(11),
+                                teamID INT(11),
+                                cost DECIMAL(10,2),
+                                isOnSite boolean,
+                                isEmergencyCall boolean)
+BEGIN
+	INSERT INTO jobs
+		(name, description, startTime, duration, clientID, teamID, cost, isOnSite, isEmergencyCall, isDeleted)
+	VALUES 
+		(name, 
+        description, 
+        startTime, 
+        duration,
+		clientID, 
+        teamID, 
+        cost, 
+        isOnSite, 
+        isEmergencyCall, 
+        false);
+END $$
+
+DELIMITER ;
+
+
+
+USE javaeeproject;
+
+DELIMITER $$
+
+CREATE PROCEDURE getJobs ()
+BEGIN
+	SELECT *
+    FROM jobs;
+END $$
+
+DELIMITER ;
+
+
+
+USE javaeeproject;
+
+DELIMITER $$
+
+CREATE PROCEDURE getJob (IN idToFind INT(11))
+BEGIN
+	SELECT *
+    FROM jobs
+    WHERE id = idToFind;
+END $$
+
+DELIMITER ;
+
+
+
+USE javaeeproject;
+
+DELIMITER $$
+CREATE PROCEDURE createTeams
+(IN teamName VARCHAR(50), isCurrentlyOnCall boolean, creationDate date, isDeleted boolean)
+BEGIN
+	INSERT INTO teams
+		(teamName, isCurrentlyOnCall, creationDate, isDeleted)
+    VALUES 
+		(teamName, isCurrentlyOnCall, creationDate, isDeleted);
+END $$
+DELIMITER ;
+
+DELIMITER $$
+CREATE PROCEDURE updateTeams
+(IN teamID INT(11), teamName VARCHAR(50), isCurrentlyOnCall boolean, creationDate date, isDeleted boolean)
+BEGIN
+	UPDATE teams 
+		SET 
+			teamName = teamName,
+            isCurrentlyOnCall = isCurrentlyOnCall,
+            creationDate = creationDate,
+            isDeleted = isDeleted
+	WHERE
+		id = teamID;
+END $$
+DELIMITER ;
+
+DELIMITER $$
+CREATE PROCEDURE getTeams ()
+BEGIN
+	SELECT  id, teamName, isCurrentlyOnCall, creationDate
+    FROM teams
+	WHERE isDeleted = FALSE;
+END $$
+DELIMITER ;
+
+DELIMITER $$
+CREATE PROCEDURE getTeam(IN teamID INT(11))
+BEGIN
+	SELECT (id, teamName, isCurrentlyOnCall, creationDate)
+    FROM teams
+    WHERE id = teamID;
+END $$
+DELIMITER ;
+
+DELIMITER $$
+CREATE PROCEDURE deleteTeams (IN teamID INT(11))
+BEGIN
+	UPDATE teams 
+		SET 
+			isDeleted = TRUE
+	WHERE
+		id = teamID;
+END $$
+DELIMITER ;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
